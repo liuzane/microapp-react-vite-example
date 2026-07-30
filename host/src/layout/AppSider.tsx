@@ -4,6 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import microApp from '@micro-zoe/micro-app';
 import { Layout } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
+
+// 远程组件
 import { SharedMenu } from 'shared/components';
 
 // 类型

@@ -1,4 +1,5 @@
 // 类型
+import type { PageResponse } from 'mockDB/types';
 import type { DatabaseMapper } from 'mockDB/mapper';
 import type { IRole, IRoleSearchParams } from '@/models/role';
 

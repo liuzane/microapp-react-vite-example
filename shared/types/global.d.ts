@@ -10,11 +10,6 @@ declare global {
   type Resolve<T> = (value: T) => void;
   type Reject = (error: Error) => void;
 
-  interface PageResponse<T> {
-    data: T[];
-    total: number;
-  }
-
   interface MicroAppGlobalData {
     from: string;
     [appName: string]: {

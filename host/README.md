@@ -23,7 +23,6 @@
 | Ant Design 6        | 组件库，提供一致的 UI 组件集                                         |
 | MicroApp            | 微前端框架，负责子应用的加载、卸载与通信                               |
 | Module Federation   | 用于加载 `shared` 远程模块（菜单组件、全局配置）                      |
-| Ant Design / 自定义  | 布局与样式库（可根据实际情况替换）                                    |
 
 ## 前置条件
 

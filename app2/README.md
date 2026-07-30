@@ -1,6 +1,6 @@
 # 子应用2 - 用户与角色管理
 
-基于 Vite + React 构建的 MicroApp 微前端子应用，提供用户管理和角色管理页面。表格和分页组件统一复用 `shared` 远程模块，数据存储依赖 `shared` 提供的 IndexedDB 本地数据库。
+基于 Vite + React 构建的 MicroApp 微前端子应用，提供用户管理和角色管理页面。表格和分页组件统一复用 `shared` 远程模块，数据存储依赖 `mockDB` 提供的 IndexedDB 本地数据库。
 
 ## 项目简介
 
@@ -9,7 +9,7 @@
 - 用户列表：展示系统用户数据，支持分页浏览
 - 角色列表：展示角色数据，支持分页浏览
 
-所有表格展示及分页操作均使用 `shared` 远程模块中的通用组件，数据来源于 `shared` 模块封装的 IndexedDB 服务，实现前端本地数据持久化。
+所有表格展示及分页操作均使用 `shared` 远程模块中的通用组件，数据来源于 `mockDB` 模块封装的 IndexedDB 服务，实现前端本地数据持久化。
 
 ## 技术栈
 
@@ -21,7 +21,7 @@
 | Ant Design 6        | 组件库，提供一致的 UI 组件集                                         |
 | MicroApp           | 微前端框架，该应用作为子应用接入                                       |
 | Module Federation   | 用于加载 `shared` 远程模块（表格、分页组件、IndexedDB 工具）           |
-| IndexedDB           | 浏览器本地数据库，由 `shared` 模块统一管理与访问                       |
+| Mock Database       | 浏览器本地数据库，由 `mockDB` 模块统一管理与访问                       |
 
 ## 前置条件
 

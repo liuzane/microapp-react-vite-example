@@ -50,9 +50,8 @@ npm run build
 远程入口文件地址：`http://localhost:3999/remoteEntry.js`
 
 
-使用方（主应用/子应用）需要动态导入：
+使用方（主应用/子应用）直接导入：
 
 ```js
-const  { Menu, DataTable, Pagination } = await import('shared/components');
-const  { initIndexedDB } = await import('shared/db');
+import { Menu, DataTable, Pagination } from 'shared/components';
 ```

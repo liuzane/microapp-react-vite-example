@@ -2,6 +2,7 @@
 
 一个基于 Vite + React + MicroApp + Module Federation 构建的微前端演示项目。包含一个主应用（Host）、一个共享模块（Shared）和两个业务子应用（订单/产品管理、用户/角色管理）。所有子应用的表格、分页、菜单组件及本地数据服务均来自 Shared 模块。
 
+
 ## 项目结构
 
 ```
@@ -12,14 +13,16 @@ vite-microapp-react-example/
 └── app2/                 # 子应用2 - 用户管理、角色管理
 ```
 
+
 ## 模块说明
 
-| 模块     | 描述                                                                 | 默认开发地址       |
-| -------- | -------------------------------------------------------------------- | ------------------ |
-| **host** | 主应用，提供整体布局、侧边栏菜单（来自 shared），动态加载子应用。       | `http://localhost:3000` |
-| **shared** | 共享模块，暴露 Menu、DataTable、Pagination 组件，以及 IndexedDB 数据服务（订单/产品/用户/角色）。 | `http://localhost:3999` |
-| **app1** | 子应用1，展示订单列表和产品列表，使用 shared 的表格、分页及数据服务。    | `http://localhost:3001` |
-| **app2** | 子应用2，展示用户列表和角色列表，同样依赖 shared 的组件与数据服务。      | `http://localhost:3002` |
+| 模块     | 描述                                                                       | 默认开发地址       |
+| -------- | ------------------------------------------------------------------------- | ------------------ |
+| **host** | 主应用，提供整体布局、侧边栏菜单（来自 shared），动态加载子应用。                   | `http://localhost:3000` |
+| **shared** | 共享模块，暴露 Menu、DataTable、Pagination 组件。                           | `http://localhost:3999` |
+| **app1** | 子应用1，展示订单列表和产品列表，使用 shared 的表格、分页及 mockDB 的数据库服务。    | `http://localhost:3001` |
+| **app2** | 子应用2，展示用户列表和角色列表，同样依赖 shared 的组件与 mockDB 的数据库服务。      | `http://localhost:3002` |
+
 
 ## 技术栈
 
@@ -27,8 +30,9 @@ vite-microapp-react-example/
 - **构建工具**：Vite
 - **前端框架**：React 19
 - **模块共享**：Module Federation（`@module-federation/vite`）
-- **本地数据**：IndexedDB（由 shared 统一管理）
+- **本地数据**：IndexedDB（由 mockDB 统一管理）
 - **路由**：React Router v6（host、app1、app2 各自独立路由）
+
 
 ## 快速开始
 
@@ -47,7 +51,7 @@ git config core.ignorecase false
 
 ### 安装依赖
 
-依次进入每个模块目录安装依赖：
+在根目录执行以下命令安装所有模块依赖：
 
 ```bash
 npm install --prefix host && npm install --prefix shared && npm install --prefix app1 && npm install --prefix app2
@@ -99,5 +103,13 @@ npm run build --prefix host && npm run build --prefix shared && npm run build --
 ```
 所有子应用会在根目录的 `dist` 中生成微前端项目结构（host在 `dist/`，shared在 `dist/shared/`，app1在 `dist/app1/`，app2在 `dist/app2/`）
 
-### 线上地址
+
+## 线上地址
+
 https://liuzane.github.io/vite-microapp-react-example
+
+
+## 许可证
+
+MIT License
+Copyright (c) 2026-present, liuzane
