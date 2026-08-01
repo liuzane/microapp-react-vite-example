@@ -1,10 +1,10 @@
 # 主应用 - Micro App Host
 
-基于 Vite + React + MicroApp 构建的微前端主应用（基座应用），负责整体布局、菜单导航以及子应用的动态加载。菜单组件通过 Module Federation 从 `shared` 远程模块获取，实现菜单配置的统一管理。
+基于 MicroApp + React + Vite 构建的微前端主应用（基座应用），负责整体布局、菜单导航以及子应用的动态加载。菜单组件通过 Module Federation 从 `shared` 远程模块获取，实现菜单配置的统一管理。
 
 ## 项目简介
 
-本项目是 [Vite Microapp React Example](https://github.com/liuzane/vite-microapp-react-example) 的主应用，采用 MicroApp 框架聚合多个独立子应用（如订单管理、用户管理等）。主要职责：
+本项目是 [Vite Microapp React Example](https://github.com/liuzane/microapp-react-vite-example) 的主应用，采用 MicroApp 框架聚合多个独立子应用（如订单管理、用户管理等）。主要职责：
 
 - 提供全局布局（顶部栏 / 侧边栏 / 内容区域）
 - 从 `shared` 远程模块加载动态菜单组件
@@ -38,7 +38,7 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/liuzane/vite-microapp-react-example.git
+git clone https://github.com/liuzane/microapp-react-vite-example.git
 cd host
 
 # 2. 安装依赖

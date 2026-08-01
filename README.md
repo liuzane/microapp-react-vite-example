@@ -1,12 +1,12 @@
 # Vite Microapp React Example
 
-一个基于 Vite + React + MicroApp + Module Federation 构建的微前端演示项目。包含一个主应用（Host）、一个共享模块（Shared）和两个业务子应用（订单/产品管理、用户/角色管理）。所有子应用的表格、分页、菜单组件及本地数据服务均来自 Shared 模块。
+一个基于 MicroApp + React + Vite + Module Federation 构建的微前端演示项目。包含一个主应用（Host）、一个共享模块（Shared）和两个业务子应用（订单/产品管理、用户/角色管理）。所有子应用的表格、分页、菜单组件及本地数据服务均来自 Shared 模块。
 
 
 ## 项目结构
 
 ```
-vite-microapp-react-example/
+microapp-react-vite-example/
 ├── host/                 # 主应用（基座） - 全局布局、菜单、子应用加载
 ├── shared/               # 共享模块 - 通用组件、IndexedDB 服务、模拟数据
 ├── app1/                 # 子应用1 - 订单管理、产品管理
@@ -106,7 +106,7 @@ npm run build --prefix host && npm run build --prefix shared && npm run build --
 
 ## 线上地址
 
-https://liuzane.github.io/vite-microapp-react-example
+https://liuzane.github.io/microapp-react-vite-example
 
 
 ## 许可证
