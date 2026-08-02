@@ -43,19 +43,16 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
-      '@typescript-eslint/typedef': [
-        'error',
-        {
+      {
           arrayDestructuring: false, // 数组解构强制类型注解
-          arrowParameter: true, // 箭头函数参数不强制类型注解
+          arrowParameter: false, // 箭头函数参数不强制类型注解
           memberVariableDeclaration: true, // 类属性强制类型注解
           objectDestructuring: false, // 对象解构强制类型注解
-          parameter: true, // 函数参数强制类型注解
+          parameter: false, // 函数参数强制类型注解
           propertyDeclaration: true, // 类属性强制类型注解
           variableDeclaration: true, // 变量声明强制类型注解
           variableDeclarationIgnoreFunction: true, // 函数声明变量不强制类型注解
         },
-      ],
 
       /* Stylistic */
       '@stylistic/semi': ['error', 'always'],

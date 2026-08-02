@@ -8,7 +8,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { setAppLoading } from '@/store/slices/appsLoadingSlice';
 
 // 枚举
-import { AppNameEnum } from '@/enmu';
+import { AppNameEnum } from '@/enums';
 
 // 类型
 import type { NavigateFunction } from 'react-router-dom';

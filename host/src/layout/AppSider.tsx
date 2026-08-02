@@ -13,7 +13,7 @@ import type { NavigateFunction, Location } from 'react-router-dom';
 import type { MenuProps } from 'antd';
 
 // 枚举
-import { AppNameEnum } from '@/enmu';
+import { AppNameEnum } from '@/enums';
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -75,7 +75,7 @@ export function AppSider() {
     const appName: string = pathnamePieces[1];
     if (appName) {
       const subPath: string = '/' + pathnamePieces.slice(2).join('/') + (location.search || '');
-      setOpenKeys([appName]);
+      setOpenKeys([...new Set([...openKeys, appName])]);
       setSelectedKeys([pathname]);
       console.log(`${AppNameEnum.Host} 发送数据到 ${appName}: { path: ${subPath} }`);
       microApp.setGlobalData({

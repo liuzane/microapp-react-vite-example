@@ -6,7 +6,7 @@ import { Typography } from 'antd';
 import { useGlobalDataListener } from '@/hooks';
 
 // 枚举
-import { AppNameEnum } from '@/enmu';
+import { AppNameEnum } from '@/enums';
 
 // 布局组件
 import { AppLayout } from '@/layout';
@@ -40,8 +40,8 @@ function App() {
   useGlobalDataListener();
 
   return (
-    <AppLayout>
-      <Routes>
+    <Routes>
+      <Route element={<AppLayout />}>
         <Route path="/" element={<Navigate to={`/${AppNameEnum.App1}/order`} />} />
         {
           microAppConfigs.map((config: MicroAppConfig) => (
@@ -67,8 +67,8 @@ function App() {
             </div>
           )}
         />
-      </Routes>
-    </AppLayout>
+      </Route>
+    </Routes>
   );
 }
 

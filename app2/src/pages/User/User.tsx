@@ -100,7 +100,6 @@ export default function User() {
   // 初始化及筛选条件变化时加载数据
   useEffect(() => {
     const name: string | null = searchParams.get('name');
-    console.log('name:', name);
     if (name) {
       setSearchText(name);
       loadData({ searchText: name });
