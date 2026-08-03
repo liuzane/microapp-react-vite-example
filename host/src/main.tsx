@@ -3,17 +3,15 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from 'react-router-dom';
 import microApp from '@micro-zoe/micro-app';
-import { StyleProvider } from '@ant-design/cssinjs';
 import { Provider } from 'react-redux';
+
+// Ant Design 配置
+import { ConfigProvider } from 'antd';
+import { StyleProvider } from '@ant-design/cssinjs';
+import zhCN from 'antd/es/locale/zh_CN';
 
 // 样式
 import '@/styles';
-
-// 数据库名称
-import { DATABASE_NAME } from 'shared/consts/db';
-
-// 数据库模块
-import { initIndexedDB } from 'mockDB/init';
 
 // Redux
 import { store } from '@/store';
@@ -22,8 +20,19 @@ import { setAppLoading } from '@/store/slices/appsLoadingSlice';
 // 应用入口
 import App from './App.tsx';
 
-// 初始化 IndexedDB
-initIndexedDB(DATABASE_NAME).then(() => {
+// 数据库名称
+const { DATABASE_NAME } = await import('shared/consts/db');
+
+// 数据库模块
+const { initIndexedDB } = await import('mockDB/init');
+
+// 引入共享的 Ant Design 主题配置
+const { default: antdTheme } = await import('shared/utils/antdTheme');
+
+async function init() {
+  // 初始化 IndexedDB 数据库
+  await initIndexedDB(DATABASE_NAME);
+
   // 启动 MicroApp
   microApp.start({
     'disableScopecss': true,
@@ -55,9 +64,11 @@ initIndexedDB(DATABASE_NAME).then(() => {
     <StrictMode>
       <Provider store={store}>
         <HashRouter>
-          <StyleProvider layer>
-            <App />
-          </StyleProvider>
+          <ConfigProvider locale={zhCN} theme={antdTheme}>
+            <StyleProvider layer>
+              <App />
+            </StyleProvider>
+          </ConfigProvider>
         </HashRouter>
       </Provider>
     </StrictMode>,
@@ -69,4 +80,6 @@ initIndexedDB(DATABASE_NAME).then(() => {
   el.addEventListener('transitionend', () => {
     el.remove();
   }, { once: true });
-});
+}
+
+init();

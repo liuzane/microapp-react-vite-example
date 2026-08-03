@@ -6,7 +6,8 @@ export default (_env: Record<string, string>) => federation(createModuleFederati
   filename: 'remoteEntry.js',
   exposes: {
     './consts/db': './src/consts/db',
-    './components': './src/components.ts',
+    './components': './src/components',
+    './utils/antdTheme': './src/utils/antdTheme',
   },
   remotes: {},
   shared: {
