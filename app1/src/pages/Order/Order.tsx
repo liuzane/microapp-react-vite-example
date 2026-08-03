@@ -379,8 +379,8 @@ export default function Order() {
       variant="outlined"
     >
       {/* 统计卡片 */}
-      <div className="mb-4 grid grid-cols-5 gap-4" style={{ marginBottom: 16 }}>
-        <Card size="small" style={{ textAlign: 'center' }}>
+      <div className="mb-4 grid grid-cols-5 gap-4 text-center">
+        <Card size="small">
           <div className="text-sm text-[#666]">总订单</div>
           <div className="text-2xl">
             <span
@@ -391,7 +391,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">待支付</div>
           <div className="text-2xl">
             <span
@@ -402,7 +402,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">已支付</div>
           <div className="text-2xl">
             <span
@@ -413,7 +413,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">已发货</div>
           <div className="text-2xl">
             <span
@@ -424,7 +424,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">已完成</div>
           <div className="text-2xl">
             <span
@@ -438,7 +438,7 @@ export default function Order() {
       </div>
 
       {/* 筛选项 */}
-      <div className="mb-4 flex gap-4 flex-wrap" style={{ marginBottom: 16 }}>
+      <div className="mb-4 flex gap-4 flex-wrap">
         <Input
           placeholder="搜索订单号"
           prefix={<SearchOutlined />}
@@ -449,12 +449,12 @@ export default function Order() {
           onInput={(e: InputElementInputEvent) => {
             setSearchText((e.target as HTMLInputElement).value);
           }}
-          style={{ width: 300 }}
+          className="w-75"
           allowClear
         />
         <Select<OrderStatusType | ''>
           placeholder="选择订单状态"
-          style={{ width: 150 }}
+          className="w-35"
           value={orderStatus}
           onChange={(value: OrderStatusType | '') => {
             setOrderStatus(value);
@@ -566,7 +566,7 @@ export default function Order() {
             ]}
           >
             <InputNumber
-              style={{ width: '100%' }}
+              className="w-full"
               precision={2}
               prefix="¥"
               placeholder="请输入金额"

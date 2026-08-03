@@ -350,7 +350,7 @@ export default function Role() {
       variant="outlined"
     >
       {/* 筛选项 */}
-      <div className="mb-4 flex gap-4 flex-wrap" style={{ marginBottom: 16 }}>
+      <div className="mb-4 flex gap-4 flex-wrap">
         <Input
           placeholder="搜索角色名称或编码"
           prefix={<SearchOutlined />}
@@ -359,12 +359,12 @@ export default function Role() {
             setSearchText(e.target.value);
             setCurrentPage(1);
           }}
-          style={{ width: 300 }}
+          className="w-75"
           allowClear
         />
         <Select<RoleStatusType | ''>
           placeholder="选择状态"
-          style={{ width: 150 }}
+          className="w-35"
           value={roleStatus}
           onChange={(value: RoleStatusType | '') => {
             setRoleStatus(value);

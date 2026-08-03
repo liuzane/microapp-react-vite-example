@@ -148,7 +148,7 @@ export default function SharedMenuUsage() {
             items={basicMenuItems}
             selectedKeys={[selectedKey]}
             onClick={onBasicMenuClick}
-            style={{ width: '100%' }}
+            className="w-full"
           />
         </div>
         <div className="mt-4 text-center text-gray-500">

@@ -419,8 +419,8 @@ export default function Product() {
       variant="outlined"
     >
       {/* 统计卡片 */}
-      <div className="mb-4 grid grid-cols-5 gap-4" style={{ marginBottom: 16 }}>
-        <Card size="small" style={{ textAlign: 'center' }}>
+      <div className="mb-4 grid grid-cols-5 gap-4 text-center">
+        <Card size="small">
           <div className="text-sm text-[#666]">总产品</div>
           <div className="text-2xl">
             <span
@@ -431,7 +431,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">上架</div>
           <div className="text-2xl">
             <span
@@ -442,7 +442,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">缺货</div>
           <div className="text-2xl">
             <span
@@ -453,7 +453,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">库存紧张</div>
           <div className="text-2xl">
             <span
@@ -464,7 +464,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small" style={{ textAlign: 'center' }}>
+        <Card size="small">
           <div className="text-sm text-[#666]">下架</div>
           <div className="text-2xl">
             <span
@@ -478,7 +478,7 @@ export default function Product() {
       </div>
 
       {/* 筛选项 */}
-      <div className="mb-4 flex gap-4 flex-wrap" style={{ marginBottom: 16 }}>
+      <div className="mb-4 flex gap-4 flex-wrap">
         <Input
           placeholder="搜索产品编号或名称"
           prefix={<SearchOutlined />}
@@ -487,12 +487,12 @@ export default function Product() {
             setSearchText(e.target.value);
             setCurrentPage(1);
           }}
-          style={{ width: 300 }}
+          className="w-75"
           allowClear
         />
         <Select<ProductCategoryType | ''>
           placeholder="选择分类"
-          style={{ width: 150 }}
+          className="w-35"
           value={category}
           onChange={(value: ProductCategoryType | '') => {
             setCategory(value);
@@ -508,7 +508,7 @@ export default function Product() {
         </Select>
         <Select<ProductStatusType | ''>
           placeholder="选择状态"
-          style={{ width: 150 }}
+          className="w-35"
           value={productStatus}
           onChange={(value: ProductStatusType | '') => {
             setProductStatus(value);
@@ -629,7 +629,7 @@ export default function Product() {
             ]}
           >
             <InputNumber
-              style={{ width: '100%' }}
+              className="w-full"
               precision={2}
               prefix="¥"
               placeholder="请输入价格"
@@ -643,7 +643,7 @@ export default function Product() {
               { type: 'integer', min: 0, message: '库存数量必须大于等于0' },
             ]}
           >
-            <InputNumber style={{ width: '100%' }} placeholder="请输入库存数量" />
+            <InputNumber className="w-full" placeholder="请输入库存数量" />
           </Form.Item>
           <Form.Item
             name="category"

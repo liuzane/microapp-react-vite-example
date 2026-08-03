@@ -375,7 +375,7 @@ export default function User() {
       variant="outlined"
     >
       {/* 筛选项 */}
-      <div className="mb-4 flex gap-4 flex-wrap" style={{ marginBottom: 16 }}>
+      <div className="mb-4 flex gap-4 flex-wrap">
         <Input
           placeholder="搜索用户姓名或邮箱"
           prefix={<SearchOutlined />}
@@ -384,12 +384,12 @@ export default function User() {
             setSearchText(e.target.value);
             setCurrentPage(1);
           }}
-          style={{ width: 300 }}
+          className="w-75"
           allowClear
         />
         <Select<UserStatusType | ''>
           placeholder="选择状态"
-          style={{ width: 150 }}
+          className="w-35"
           value={userStatus}
           onChange={(value: UserStatusType | '') => {
             setUserStatus(value);

@@ -19,7 +19,7 @@ export function AppLayout() {
       <Layout className="h-full">
         <AppHeader />
         <Content
-          className="m-4 bg-white rounded-md overflow-auto relative"
+          className="m-4 rounded-md overflow-auto relative"
         >
           <Outlet />
         </Content>

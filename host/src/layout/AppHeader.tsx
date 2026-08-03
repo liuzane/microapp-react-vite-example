@@ -82,7 +82,7 @@ export function AppHeader() {
       <Header
         className="bg-white px-6 flex items-center justify-between shadow-[0_1px_4px_rgba(0,21,41,0.08)]"
       >
-        <Title level={4}>一个基于 MicroApp + React + Vite 的模块联邦微前端演示项目</Title>
+        <Title level={4} className="m-0">一个基于 MicroApp + React + Vite 的模块联邦微前端演示项目</Title>
         <SettingOutlined onClick={() => setModalVisible(true)} />
       </Header>
 
