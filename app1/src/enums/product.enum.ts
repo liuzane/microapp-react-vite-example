@@ -1,4 +1,4 @@
-// 产品状态枚举
+// 商品状态枚举
 export enum ProductStatusEnum {
   OnSale = 'on_sale',
   OffSale = 'off_sale',
@@ -6,7 +6,7 @@ export enum ProductStatusEnum {
   LowStock = 'low_stock',
 }
 
-// 产品分类枚举
+// 商品分类枚举
 export enum ProductCategoryEnum {
   Electronics = 'electronics',
   Clothing = 'clothing',

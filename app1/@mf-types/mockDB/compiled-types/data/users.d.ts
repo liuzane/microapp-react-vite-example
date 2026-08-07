@@ -1,13 +1,13 @@
 export interface User {
     id: number;
     name: string;
-    email: string;
     phone: string;
+    email: string;
     status: string;
-    role: string;
-    roleId: number;
-    createTime: string;
+    roleName: string;
     lastLoginTime: string;
+    createTime: string;
+    updateTime: string;
 }
 declare const users: User[];
 export default users;

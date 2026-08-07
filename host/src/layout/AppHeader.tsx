@@ -3,19 +3,22 @@ import { useState } from 'react';
 import { Layout, Typography, Button, Modal, Card, Space, message } from 'antd';
 import { SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 
-// 数据库名称
-import { DATABASE_NAME } from 'shared/consts/db';
-
-// 数据库表名
-import {
-  ORDER_STORE_NAME,
-  PRODUCT_STORE_NAME,
-  USER_STORE_NAME,
-  ROLE_STORE_NAME,
-} from 'mockDB/store-names';
-
 // 类型
 import type { DatabaseMapper } from 'mockDB/mapper';
+
+// 远程模块
+const [
+  { DATABASE_NAME }, // 数据库名称
+  {
+    ORDER_STORE_NAME,
+    PRODUCT_STORE_NAME,
+    USER_STORE_NAME,
+    ROLE_STORE_NAME,
+  }, // 数据库表名
+] = await Promise.all([
+  import('shared/consts'),
+  import('mockDB/store-names'),
+]);
 
 const { Header } = Layout;
 const { Title, Paragraph } = Typography;
@@ -119,9 +122,9 @@ export function AppHeader() {
                   type="primary"
                   danger
                   icon={<ReloadOutlined />}
-                  onClick={() => onResetTable(PRODUCT_STORE_NAME, '产品')}
+                  onClick={() => onResetTable(PRODUCT_STORE_NAME, '商品')}
                 >
-                  重置产品数据
+                  重置商品数据
                 </Button>
               </div>
             </Card>

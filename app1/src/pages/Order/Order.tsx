@@ -1,5 +1,5 @@
 // 基础模块
-import { useState, useEffect, useCallback } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import {
   Input,
   Select,
@@ -20,16 +20,17 @@ import {
   EyeOutlined,
 } from '@ant-design/icons';
 
-// 远程组件
-import { SharedTable, SharedPagination } from 'shared/components';
-
 // 枚举
 import { OrderStatusEnum } from '@/enums/order.enum';
 
 // 类型
 import type { TableProps } from 'antd';
+import type { Product } from 'mockDB/data/products';
+import type { User } from 'mockDB/data/users';
+import type { OrderSearchParams, OrderUpdateDTO } from 'mockDB/services/OrderService';
+import type { SharedTable } from 'shared/components/SharedTable';
+import type { SharedPagination } from 'shared/components/SharedPagination';
 import type {
-  IOrderSearchParams,
   IOrder,
   OrderStatusType,
   IStatistics,
@@ -38,7 +39,13 @@ import type {
 } from '@/models/order';
 
 // 数据服务
-import OrderService from '@/services/OrderService';
+import orderService from '@/services/orderService';
+import productService from '@/services/productService';
+import userService from '@/services/userService';
+
+// 模块联邦组件
+const SharedTable: SharedTable = lazy(() => import('shared/components/SharedTable')) as SharedTable;
+const SharedPagination: SharedPagination = lazy(() => import('shared/components/SharedPagination')) as SharedPagination;
 
 const { Option } = Select;
 
@@ -51,14 +58,15 @@ const STATUS_MAP: Record<OrderStatusType, IStatusConfig> = {
   [OrderStatusEnum.Cancelled]: { text: '已取消', color: 'error' },
 };
 
-// 订单服务
-const orderService: OrderService = new OrderService();
-
 export default function Order() {
   // 状态管理
   const [dataSource, setDataSource] = useState<IOrder[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // 数据选项数据
+  const [products, setProducts] = useState<Product[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   // 筛选条件
   const [searchText, setSearchText] = useState<string>('');
@@ -88,41 +96,87 @@ export default function Order() {
    * 加载数据函数
    * @param params 查询参数
    */
-  const loadData: (params?: IOrderSearchParams) => Promise<void> = useCallback(async (params?: IOrderSearchParams) => {
+  const loadData = async (params?: OrderSearchParams) => {
     setLoading(true);
     try {
       // 获取分页数据
-      const { data, total: totalCount } = await orderService.getOrdersByPage({
+      const { code, data, msg } = await orderService.getOrdersByPage({
         currentPage: params && 'currentPage' in params ? params.currentPage : currentPage,
         pageSize: params && 'pageSize' in params ? params.pageSize : pageSize,
         searchText: params && 'searchText' in params ? params.searchText : searchText,
         status: params && 'status' in params ? params.status : orderStatus,
       });
-
-      setDataSource(data);
-      setTotal(totalCount);
-
-      // 加载统计数据（需要全量数据）
-      const allOrders: IOrder[] = await orderService.getAllOrders();
-      setStatistics({
-        total: allOrders.length,
-        pending: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Pending).length,
-        paid: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Paid).length,
-        shipped: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Shipped).length,
-        completed: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Completed).length,
-        cancelled: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Cancelled).length,
-      });
+      if (code === 200 && data) {
+        setDataSource(data.list as IOrder[]);
+        setTotal(data.total);
+      } else {
+        throw new Error(msg);
+      }
     } catch (error) {
-      console.error('加载数据失败:', error);
-      message.error('加载订单数据失败，请刷新页面重试');
+      console.error('加载订单数据失败:', error);
+      message.error(`加载订单数据失败: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, searchText, orderStatus]);
+  };
+
+  /**
+   * 加载统计数据函数
+   */
+  const loadStatistics = async () => {
+    try {
+      const { code, data, msg } = await orderService.getAllOrders();
+      if (code === 200 && data) {
+        const allOrders: IOrder[] = data as IOrder[];
+        setStatistics({
+          total: allOrders.length,
+          pending: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Pending).length,
+          paid: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Paid).length,
+          shipped: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Shipped).length,
+          completed: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Completed).length,
+          cancelled: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Cancelled).length,
+        });
+      } else {
+        throw new Error(msg);
+      }
+    } catch (error) {
+      console.error('加载统计数据失败:', error);
+      message.error(`加载统计数据失败: ${(error as Error).message}`);
+      return;
+    }
+  };
+
+  /**
+   * 加载数据选项
+   */
+  const loadOptions = async () => {
+    const [productsResult, usersResult] = await Promise.allSettled([
+      productService.getAllProducts(),
+      userService.getAllUsers(),
+    ]);
+    if (productsResult.status === 'fulfilled' && productsResult.value) {
+      const { code, data, msg } = productsResult.value;
+      if (code === 200 && data) {
+        setProducts(data);
+      } else {
+        console.error('加载商品数据选项失败:', msg);
+      }
+    }
+    if (usersResult.status === 'fulfilled' && usersResult.value) {
+      const { code, data, msg } = usersResult.value;
+      if (code === 200 && data) {
+        setUsers(data);
+      } else {
+        console.error('加载客户数据选项失败:', msg);
+      }
+    }
+  };
 
   // 初始化及筛选条件变化时加载数据
   useEffect(() => {
     loadData();
+    loadStatistics();
+    loadOptions();
   }, []);
 
   // 当删除操作后，若当前页无数据且不是第一页，则跳转到上一页
@@ -190,18 +244,24 @@ export default function Order() {
   const confirmDelete = (record: IOrder): void => {
     Modal.confirm({
       title: '确认删除',
-      content: `确定要删除订单 ${record.orderNo} 吗？此操作不可恢复。`,
+      content: `确定要删除订单 ${record.productName}(${record.orderNo}) 吗？此操作不可恢复。`,
       okText: '确认',
       cancelText: '取消',
       okType: 'danger',
       onOk: async () => {
         try {
-          await orderService.deleteOrder(record.id);
-          await loadData(); // 重新加载当前页数据
-          message.success(`删除订单：${record.orderNo} 成功`);
+          const { code, msg } = await orderService.deleteOrder(record.id);
+          if (code === 200) {
+            loadData();
+            loadStatistics();
+            message.success(`删除订单：${record.productName}(${record.orderNo}) 成功`);
+          } else {
+            throw new Error(msg);
+          }
         } catch (error) {
-          console.error('删除失败:', error);
-          message.error('删除失败，请重试');
+          console.error('删除订单失败:', error);
+          message.error(`删除订单失败: ${(error as Error).message}`);
+          return;
         }
       },
     });
@@ -213,8 +273,8 @@ export default function Order() {
   const onEditSave = async (): Promise<void> => {
     try {
       const values: IOrderEditForm = await form.validateFields();
-      if (currentRecord) {
-        const updatedRecord: IOrder = {
+      if (values && currentRecord) {
+        const params: OrderUpdateDTO = {
           ...currentRecord,
           productName: values.productName,
           amount: values.amount,
@@ -223,13 +283,20 @@ export default function Order() {
           phone: values.phone,
           address: values.address,
         };
-        await orderService.updateOrder(updatedRecord);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`订单 ${currentRecord.orderNo} 更新成功`);
+        const { code, msg } = await orderService.updateOrder(params);
+        if (code === 200) {
+          loadData();
+          loadStatistics();
+          setEditModalVisible(false);
+          message.success(`订单 ${currentRecord.orderNo} 更新成功`);
+        } else {
+          throw new Error(msg);
+        }
       }
     } catch (error) {
       console.error('表单验证失败:', error);
+      message.error(`更新订单失败: ${(error as Error).message}`);
+      return;
     }
   };
 
@@ -335,6 +402,12 @@ export default function Order() {
       key: 'createTime',
       width: 220,
       sorter: (a: IOrder, b: IOrder) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
+    },
+    {
+      title: '收获地址',
+      dataIndex: 'address',
+      key: 'address',
+      ellipsis: true,
     },
     {
       title: '操作',
@@ -553,9 +626,17 @@ export default function Order() {
           <Form.Item
             name="productName"
             label="商品名称"
-            rules={[{ required: true, message: '请输入商品名称' }]}
+            rules={[{ required: true, message: '请选择商品名称' }]}
           >
-            <Input placeholder="请输入商品名称" />
+            <Select
+              placeholder="请选择商品名称"
+              showSearch
+              optionFilterProp="label"
+              options={products.map((product: Product) => ({
+                value: product.name,
+                label: product.name,
+              }))}
+            />
           </Form.Item>
           <Form.Item
             name="amount"
@@ -590,9 +671,17 @@ export default function Order() {
           <Form.Item
             name="customerName"
             label="客户姓名"
-            rules={[{ required: true, message: '请输入客户姓名' }]}
+            rules={[{ required: true, message: '请选择客户姓名' }]}
           >
-            <Input placeholder="请输入客户姓名" />
+            <Select
+              placeholder="请选择客户姓名"
+              showSearch
+              optionFilterProp="label"
+              options={users.map((user: User) => ({
+                value: user.name,
+                label: user.name,
+              }))}
+            />
           </Form.Item>
           <Form.Item
             name="phone"

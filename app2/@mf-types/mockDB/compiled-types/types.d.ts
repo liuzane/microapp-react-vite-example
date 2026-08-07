@@ -11,7 +11,12 @@ export interface IndexedDBIndex {
     keyPath: string;
     unique: boolean;
 }
+export interface Result<T> {
+    code: number;
+    msg: string;
+    data?: T;
+}
 export interface PageResponse<T> {
-    data: T[];
+    list: T[];
     total: number;
 }

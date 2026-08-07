@@ -4,13 +4,6 @@ import type { Order } from 'mockDB/data/orders';
 // 枚举
 import { OrderStatusEnum } from '@/enums/order.enum';
 
-export interface IOrderSearchParams {
-  currentPage?: number;
-  pageSize?: number;
-  searchText?: string;
-  status?: OrderStatusType | '';
-}
-
 export interface IOrder extends Omit<Order, 'status'> {
   status: OrderStatusType;
 }

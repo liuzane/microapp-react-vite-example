@@ -2,15 +2,20 @@
 import { Table } from 'antd';
 
 // 类型
+import type { JSX } from 'react';
 import type { TableProps } from 'antd';
 
-export default function SharedTable<T>(props: TableProps<T>) {
+export type SharedTable = <T>(props: TableProps<T>) => JSX.Element;
+
+const SharedTable: SharedTable = (props) => {
   return (
-    <Table<T>
+    <Table
       bordered
       pagination={false}
       size="middle"
       {...props}
     />
   );
-}
+};
+
+export default SharedTable;

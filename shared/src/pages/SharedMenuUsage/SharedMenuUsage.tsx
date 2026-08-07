@@ -36,7 +36,7 @@ export default function SharedMenuUsage() {
     {
       key: 'product',
       icon: <FolderOpenOutlined />,
-      label: '产品管理',
+      label: '商品管理',
     },
     {
       key: 'user',
@@ -97,7 +97,7 @@ export default function SharedMenuUsage() {
         {
           key: 'business-product',
           icon: <FolderOpenOutlined />,
-          label: '产品管理',
+          label: '商品管理',
         },
       ],
     },

@@ -3,9 +3,9 @@ export interface Role {
     name: string;
     code: string;
     status: string;
-    userCount: number;
-    createTime: string;
     description: string;
+    createTime: string;
+    updateTime: string;
 }
 declare const roles: Role[];
 export default roles;

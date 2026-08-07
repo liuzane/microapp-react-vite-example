@@ -1,6 +1,6 @@
 # Shared 模块 - 共享组件与数据服务
 
-本模块是 [Vite Microapp React Example](https://github.com/liuzane/microapp-react-vite-example) 的公共远程模块，基于 Vite + React + Module Federation 构建。它为微前端体系中的主应用（Host）和子应用提供统一的 UI 组件、分页能力以及基于 IndexedDB 的本地数据服务，并内置订单、产品、用户、角色的模拟数据。
+本模块是 [Vite Microapp React Example](https://github.com/liuzane/microapp-react-vite-example) 的公共远程模块，基于 Vite + React + Module Federation 构建。它为微前端体系中的主应用（Host）和子应用提供统一的 UI 组件、分页能力以及基于 IndexedDB 的本地数据服务，并内置订单、商品、用户、角色的模拟数据。
 
 ## 核心能力
 
@@ -8,7 +8,7 @@
 | ------------ | ------------------------------------------------------------------------ |
 | 通用组件     | `Menu` 导航菜单组件、`DataTable` 通用表格组件、`Pagination` 分页组件      |
 | 数据服务     | IndexedDB 封装（初始化、CRUD、分页查询），支持 orders / products / users / roles 四张表 |
-| 模拟数据     | 订单、产品、用户、角色的演示数据，便于快速开发和演示                       |
+| 模拟数据     | 订单、商品、用户、角色的演示数据，便于快速开发和演示                       |
 | 用法示例     | 提供组件使用演示页面，帮助主应用/子应用开发者理解如何集成                   |
 
 所有组件和 API 均通过 Module Federation 暴露，供 Host、子应用1、子应用2 等远程加载。
