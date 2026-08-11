@@ -20,7 +20,7 @@ import { setAppLoading } from '@/store/slices/appsLoadingSlice';
 // 应用入口
 import App from './App.tsx';
 
-// 远程模块
+// 模块联邦模块
 const [
   { initIndexedDB }, // 初始化 IndexedDB 数据库工具
   { DATABASE_NAME }, // 数据库名称

@@ -2,7 +2,7 @@
 import type { DatabaseMapper } from 'mockDB/mapper';
 import type { User } from 'mockDB/data/users';
 
-// 远程模块
+// 模块联邦模块
 const [
   { DATABASE_NAME }, // 数据库名称
   { USER_STORE_NAME }, // 用户表名称

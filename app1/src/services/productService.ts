@@ -2,7 +2,7 @@
 import type { DatabaseMapper } from 'mockDB/mapper';
 import type { Product } from 'mockDB/data/products';
 
-// 远程模块
+// 模块联邦模块
 const [
   { DATABASE_NAME }, // 数据库名称
   { PRODUCT_STORE_NAME }, // 商品表名称

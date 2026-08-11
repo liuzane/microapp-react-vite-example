@@ -6,7 +6,7 @@ import { SettingOutlined, ReloadOutlined } from '@ant-design/icons';
 // 类型
 import type { DatabaseMapper } from 'mockDB/mapper';
 
-// 远程模块
+// 模块联邦模块
 const [
   { DATABASE_NAME }, // 数据库名称
   {
