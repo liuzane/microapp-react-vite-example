@@ -1,5 +1,5 @@
 // 基础模块
-import { useState, useEffect, useCallback } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Input,
@@ -22,16 +22,16 @@ import {
   EyeOutlined,
 } from '@ant-design/icons';
 
-// 远程组件
-import { SharedTable, SharedPagination } from 'shared/components';
-
 // 枚举
 import { UserStatusEnum } from '@/enums/user.enum';
 
 // 类型
 import type { TableProps } from 'antd';
+import type { UserSearchParams, UserUpdateDTO } from 'mockDB/services/user-service';
+import type { Role } from 'mockDB/data/roles';
+import type { SharedTable } from 'shared/components/SharedTable';
+import type { SharedPagination } from 'shared/components/SharedPagination';
 import type {
-  IUserSearchParams,
   IUser,
   UserStatusType,
   IStatusConfig,
@@ -39,7 +39,12 @@ import type {
 } from '@/models/user';
 
 // 数据服务
-import UserService from '@/services/UserService';
+import userService from '@/services/userService';
+import roleService from '@/services/roleService';
+
+// 模块联邦组件
+const SharedTable: SharedTable = lazy(() => import('shared/components/SharedTable')) as SharedTable;
+const SharedPagination: SharedPagination = lazy(() => import('shared/components/SharedPagination')) as SharedPagination;
 
 const { Option } = Select;
 
@@ -47,9 +52,6 @@ const STATUS_MAP: Record<UserStatusType, IStatusConfig> = {
   [UserStatusEnum.Active]: { text: '启用', color: 'success' },
   [UserStatusEnum.Disabled]: { text: '禁用', color: 'default' },
 };
-
-// 用户服务
-const userService: UserService = new UserService();
 
 export default function User() {
   // 路由参数
@@ -59,6 +61,9 @@ export default function User() {
   const [dataSource, setDataSource] = useState<IUser[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // 数据选项数据
+  const [roles, setRoles] = useState<Role[]>([]);
 
   // 筛选条件
   const [searchText, setSearchText] = useState<string>('');
@@ -78,24 +83,40 @@ export default function User() {
    * 加载数据函数
    * @param params 查询参数
    */
-  const loadData: (params?: IUserSearchParams) => Promise<void> = useCallback(async (params?: { currentPage?: number; pageSize?: number; searchText?: string; status?: UserStatusType | '' }) => {
+  const loadData = async (params?: UserSearchParams) => {
     setLoading(true);
     try {
-      const { data, total: totalCount } = await userService.getUsersByPage({
+      const { code, data, msg } = await userService.getUsersByPage({
         currentPage: params && 'currentPage' in params ? params.currentPage : currentPage,
         pageSize: params && 'pageSize' in params ? params.pageSize : pageSize,
         searchText: params && 'searchText' in params ? params.searchText : searchText,
         status: params && 'status' in params ? params.status : userStatus,
       });
-      setDataSource(data);
-      setTotal(totalCount);
+      if (code === 200 && data) {
+        setDataSource(data.list as IUser[]);
+        setTotal(data.total);
+      } else {
+        throw new Error(msg);
+      }
     } catch (error) {
-      console.error('加载数据失败:', error);
-      message.error('加载用户数据失败，请刷新页面重试');
+      console.error('加载用户数据失败:', error);
+      message.error(`加载用户数据失败: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, searchText, userStatus]);
+  };
+
+  /**
+   * 加载数据选项
+   */
+  const loadOptions = async () => {
+    const { code, data, msg } = await roleService.getAllRoles();
+    if (code === 200 && data) {
+      setRoles(data);
+    } else {
+      console.error('加载角色数据选项失败:', msg);
+    }
+  };
 
   // 初始化及筛选条件变化时加载数据
   useEffect(() => {
@@ -106,6 +127,7 @@ export default function User() {
     } else {
       loadData();
     }
+    loadOptions();
   }, []);
 
   // 当删除操作后，若当前页无数据且不是第一页，则跳转到上一页
@@ -134,7 +156,7 @@ export default function User() {
       email: record.email,
       phone: record.phone,
       status: record.status,
-      role: record.role,
+      roleName: record.roleName,
     });
     setEditModalVisible(true);
   };
@@ -163,12 +185,17 @@ export default function User() {
       okType: 'danger',
       onOk: async () => {
         try {
-          await userService.deleteUser(record.id);
-          await loadData();
-          message.success(`删除用户：${record.name} 成功`);
+          const { code, msg } = await userService.deleteUser(record.id);
+          if (code === 200) {
+            await loadData();
+            message.success(`删除用户：${record.name} 成功`);
+          } else {
+            throw new Error(msg);
+          }
         } catch (error) {
-          console.error('删除失败:', error);
-          message.error('删除失败，请重试');
+          console.error('删除用户失败:', error);
+          message.error(`删除用户失败: ${(error as Error).message}`);
+          return;
         }
       },
     });
@@ -180,40 +207,29 @@ export default function User() {
   const onEditSave = async (): Promise<void> => {
     try {
       const values: IUserEditForm = await form.validateFields();
-      if (currentRecord) {
-        // 更新
-        const updatedRecord: IUser = {
-          ...currentRecord,
+      if (values) {
+        const params: UserUpdateDTO = {
           name: values.name,
-          email: values.email,
           phone: values.phone,
-          status: values.status,
-          role: values.role,
-        };
-        await userService.updateUser(updatedRecord);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`用户 ${currentRecord.name} 更新成功`);
-      } else {
-        // 新增
-        const newUser: IUser = {
-          id: Date.now(),
-          name: values.name,
           email: values.email,
-          phone: values.phone,
           status: values.status,
-          role: values.role,
-          roleId: 5,
-          createTime: new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\//g, '-'),
-          lastLoginTime: '-',
+          roleName: values.roleName,
         };
-        await userService.insertUser(newUser);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`用户 ${newUser.name} 创建成功`);
+        if (currentRecord) {
+          params.id = currentRecord.id;
+        }
+        const { code, msg } = await userService.updateUser(params);
+        if (code === 200) {
+          await loadData();
+          setEditModalVisible(false);
+          message.success(`用户 ${params.name} ${params.id === -1 ? '创建' : '更新'}成功`);
+        } else {
+          throw new Error(msg);
+        }
       }
     } catch (error) {
-      console.error('表单验证失败:', error);
+      console.error('保存用户失败:', error);
+      message.error(`保存用户失败: ${(error as Error).message}`);
     }
   };
 
@@ -227,12 +243,16 @@ export default function User() {
         ...record,
         status: newStatus,
       };
-      await userService.updateUser(updatedRecord);
-      await loadData();
-      message.success(`用户 "${record.name}" 状态已更新为「${STATUS_MAP[newStatus].text}」`);
+      const { code, msg } = await userService.updateUser(updatedRecord);
+      if (code === 200) {
+        await loadData();
+        message.success(`用户 "${record.name}" 状态已更新为「${STATUS_MAP[newStatus].text}」`);
+      } else {
+        throw new Error(msg);
+      }
     } catch (error) {
       console.error('状态切换失败:', error);
-      message.error('状态切换失败，请重试');
+      message.error(`状态切换失败: ${(error as Error).message}`);
     }
   };
 
@@ -268,24 +288,18 @@ export default function User() {
    */
   const columns: TableProps<IUser>['columns'] = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
+      title: '序号',
+      key: 'index',
+      width: 50,
+      align: 'center',
       fixed: 'left',
+      render: (_text, _record, index) => index + 1,
     },
     {
       title: '姓名',
       dataIndex: 'name',
       key: 'name',
-      width: 120,
-    },
-    {
-      title: '邮箱',
-      dataIndex: 'email',
-      key: 'email',
-      width: 200,
-      ellipsis: true,
+      width: 150,
     },
     {
       title: '手机号',
@@ -311,9 +325,16 @@ export default function User() {
     },
     {
       title: '角色',
-      dataIndex: 'role',
-      key: 'role',
-      width: 120,
+      dataIndex: 'roleName',
+      key: 'roleName',
+      width: 200,
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      key: 'email',
+      minWidth: 200,
+      ellipsis: true,
     },
     {
       title: '最后登录',
@@ -449,7 +470,7 @@ export default function User() {
         {currentRecord && (
           <Descriptions bordered column={2}>
             <Descriptions.Item label="用户ID">{currentRecord.id}</Descriptions.Item>
-            <Descriptions.Item label="用户角色">{currentRecord.role}</Descriptions.Item>
+            <Descriptions.Item label="用户角色">{currentRecord.roleName}</Descriptions.Item>
             <Descriptions.Item label="用户姓名" span={2}>{currentRecord.name}</Descriptions.Item>
             <Descriptions.Item label="电子邮箱">{currentRecord.email}</Descriptions.Item>
             <Descriptions.Item label="手机号码">{currentRecord.phone}</Descriptions.Item>
@@ -524,20 +545,19 @@ export default function User() {
             </Select>
           </Form.Item>
           <Form.Item
-            name="role"
+            name="roleName"
             label="用户角色"
             rules={[{ required: true, message: '请选择用户角色' }]}
           >
-            <Select placeholder="请选择角色">
-              <Option value="超级管理员">超级管理员</Option>
-              <Option value="管理员">管理员</Option>
-              <Option value="产品经理">产品经理</Option>
-              <Option value="运营专员">运营专员</Option>
-              <Option value="普通用户">普通用户</Option>
-              <Option value="访客">访客</Option>
-              <Option value="数据分析师">数据分析师</Option>
-              <Option value="财务人员">财务人员</Option>
-            </Select>
+            <Select
+              placeholder="请选择角色"
+              showSearch
+              optionFilterProp="label"
+              options={roles.map((role: Role) => ({
+                value: role.name,
+                label: role.name,
+              }))}
+            />
           </Form.Item>
         </Form>
       </Modal>

@@ -91,17 +91,17 @@ export default function SharedTableUsage() {
     },
   ];
 
-  // 示例2: 带操作列的表格 - 产品列表
+  // 示例2: 带操作列的表格 - 商品列表
   const productColumns: TableProps<Product>['columns'] = [
     {
-      title: '产品编号',
+      title: '商品编号',
       dataIndex: 'productNo',
       key: 'productNo',
 
       fixed: 'left',
     },
     {
-      title: '产品名称',
+      title: '商品名称',
       dataIndex: 'name',
       key: 'name',
       width: 320,
@@ -172,7 +172,7 @@ export default function SharedTableUsage() {
       </Card>
 
       {/* 示例2: 带操作列的表格 */}
-      <Card title="带操作列的表格示例 - 产品列表" variant="outlined">
+      <Card title="带操作列的表格示例 - 商品列表" variant="outlined">
         <SharedTable<Product>
           columns={productColumns}
           dataSource={products}

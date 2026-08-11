@@ -1,3 +1,3 @@
 
-    export type RemoteKeys = 'shared/consts/db' | 'shared/components' | 'shared/utils/antdTheme';
-    type PackageType<T> = T extends 'shared/utils/antdTheme' ? typeof import('shared/utils/antdTheme') :T extends 'shared/components' ? typeof import('shared/components') :T extends 'shared/consts/db' ? typeof import('shared/consts/db') :any;
+    export type RemoteKeys = 'shared/consts' | 'shared/components/SharedTable' | 'shared/components/SharedPagination' | 'shared/components/SharedMenu' | 'shared/utils/antdTheme';
+    type PackageType<T> = T extends 'shared/utils/antdTheme' ? typeof import('shared/utils/antdTheme') :T extends 'shared/components/SharedMenu' ? typeof import('shared/components/SharedMenu') :T extends 'shared/components/SharedPagination' ? typeof import('shared/components/SharedPagination') :T extends 'shared/components/SharedTable' ? typeof import('shared/components/SharedTable') :T extends 'shared/consts' ? typeof import('shared/consts') :any;

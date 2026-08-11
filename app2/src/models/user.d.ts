@@ -4,13 +4,6 @@ import type { User } from 'mockDB/data/users';
 // 枚举
 import { UserStatusEnum } from '@/enums/user.enum';
 
-export interface IUserSearchParams {
-  currentPage?: number;
-  pageSize?: number;
-  searchText?: string;
-  status?: UserStatusType | '';
-}
-
 export interface IUser extends Omit<User, 'status'> {
   status: UserStatusType;
 }
@@ -27,5 +20,5 @@ export interface IUserEditForm {
   email: string;
   phone: string;
   status: UserStatusType;
-  role: string;
+  roleName: string;
 }

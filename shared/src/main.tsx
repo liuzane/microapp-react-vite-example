@@ -19,11 +19,11 @@ import App from './App.tsx';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ConfigProvider locale={zhCN} theme={antdTheme}>
-      <HashRouter basename={window.__MICRO_APP_BASE_ROUTE__ || '/'}>
-        <StyleProvider layer>
+      <StyleProvider layer>
+        <HashRouter basename={window.__MICRO_APP_BASE_ROUTE__ || '/'}>
           <App />
-        </StyleProvider>
-      </HashRouter>
+        </HashRouter>
+      </StyleProvider>
     </ConfigProvider>
   </StrictMode>,
 );

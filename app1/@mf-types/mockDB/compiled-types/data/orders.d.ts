@@ -2,12 +2,13 @@ export interface Order {
     id: number;
     orderNo: string;
     productName: string;
+    customerName: string;
     amount: number;
     status: string;
-    createTime: string;
-    customerName: string;
     phone: string;
     address: string;
+    createTime: string;
+    updateTime: string;
 }
-declare const orders: Order[];
+export declare const orders: Order[];
 export default orders;

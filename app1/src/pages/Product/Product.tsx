@@ -1,5 +1,5 @@
 // 基础模块
-import { useState, useEffect, useCallback } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Input,
@@ -22,16 +22,15 @@ import {
   PlusOutlined,
 } from '@ant-design/icons';
 
-// 远程组件
-import { SharedTable, SharedPagination } from 'shared/components';
-
 // 枚举
 import { ProductStatusEnum, ProductCategoryEnum } from '@/enums/product.enum';
 
 // 类型
 import type { TableProps } from 'antd';
+import type { ProductSearchParams, ProductUpdateDTO } from 'mockDB/services/product-service';
+import type { SharedTable } from 'shared/components/SharedTable';
+import type { SharedPagination } from 'shared/components/SharedPagination';
 import type {
-  IProductSearchParams,
   IProduct,
   IStatistics,
   ProductStatusType,
@@ -41,7 +40,11 @@ import type {
 } from '@/models/product';
 
 // 数据服务
-import ProductService from '@/services/ProductService';
+import productService from '@/services/productService';
+
+// 模块联邦组件
+const SharedTable: SharedTable = lazy(() => import('shared/components/SharedTable')) as SharedTable;
+const SharedPagination: SharedPagination = lazy(() => import('shared/components/SharedPagination')) as SharedPagination;
 
 const { Option } = Select;
 
@@ -53,15 +56,12 @@ const STATUS_MAP: Record<ProductStatusType, IStatusConfig> = {
 };
 
 const CATEGORY_MAP: Record<ProductCategoryType, string> = {
-  [ProductCategoryEnum.Electronics]: '电子产品',
+  [ProductCategoryEnum.Electronics]: '电子商品',
   [ProductCategoryEnum.Clothing]: '服装',
   [ProductCategoryEnum.Home]: '家居用品',
   [ProductCategoryEnum.Beauty]: '美妆个护',
   [ProductCategoryEnum.Food]: '食品饮料',
 };
-
-// 产品服务
-const productService: ProductService = new ProductService();
 
 export default function Product() {
   // 路由参数
@@ -100,35 +100,54 @@ export default function Product() {
    * 加载数据函数
    * @param params 查询参数
    */
-  const loadData: (params?: IProductSearchParams) => Promise<void> = useCallback(async (params?: IProductSearchParams) => {
+  const loadData = async (params?: ProductSearchParams) => {
     setLoading(true);
     try {
-      const { data, total: totalCount } = await productService.getProductsByPage({
+      const { code, data, msg } = await productService.getProductsByPage({
         currentPage: params && 'currentPage' in params ? params.currentPage : currentPage,
         pageSize: params && 'pageSize' in params ? params.pageSize : pageSize,
         searchText: params && 'searchText' in params ? params.searchText : searchText,
         category: params && 'category' in params ? params.category : category,
         status: params && 'status' in params ? params.status : productStatus,
       });
-      setDataSource(data);
-      setTotal(totalCount);
-
-      // 加载统计数据
-      const allProducts: IProduct[] = await productService.getAllProducts();
-      setStatistics({
-        total: allProducts.length,
-        onSale: allProducts.filter((item: IProduct) => item.status === ProductStatusEnum.OnSale).length,
-        offSale: allProducts.filter((item: IProduct) => item.status === ProductStatusEnum.OffSale).length,
-        outOfStock: allProducts.filter((item: IProduct) => item.status === ProductStatusEnum.OutOfStock).length,
-        lowStock: allProducts.filter((item: IProduct) => item.stock > 0 && item.stock < 10).length,
-      });
+      if (code === 200 && data) {
+        setDataSource(data.list as IProduct[]);
+        setTotal(data.total);
+      } else {
+        throw new Error(msg);
+      }
     } catch (error) {
-      console.error('加载数据失败:', error);
-      message.error('加载产品数据失败，请刷新页面重试');
+      console.error('加载商品数据失败:', error);
+      message.error(`加载商品数据失败: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, searchText, category, productStatus]);
+  };
+
+  /**
+     * 加载统计数据函数
+     */
+  const loadStatistics = async () => {
+    try {
+      const { code, data, msg } = await productService.getAllProducts();
+      if (code === 200 && data) {
+        const allProducts: IProduct[] = data as IProduct[];
+        setStatistics({
+          total: allProducts.length,
+          onSale: allProducts.filter((item: IProduct) => item.status === ProductStatusEnum.OnSale).length,
+          offSale: allProducts.filter((item: IProduct) => item.status === ProductStatusEnum.OffSale).length,
+          outOfStock: allProducts.filter((item: IProduct) => item.status === ProductStatusEnum.OutOfStock).length,
+          lowStock: allProducts.filter((item: IProduct) => item.stock > 0 && item.stock < 10).length,
+        });
+      } else {
+        throw new Error(msg);
+      }
+    } catch (error) {
+      console.error('加载统计数据失败:', error);
+      message.error(`加载统计数据失败: ${(error as Error).message}`);
+      return;
+    }
+  };
 
   // 初始化及筛选条件变化时加载数据
   useEffect(() => {
@@ -139,6 +158,7 @@ export default function Product() {
     } else {
       loadData();
     }
+    loadStatistics();
   }, []);
 
   // 当删除操作后，若当前页无数据且不是第一页，则跳转到上一页
@@ -150,7 +170,7 @@ export default function Product() {
   }, [total, pageSize, currentPage]);
 
   /**
-   * 查看产品详情
+   * 查看商品详情
    */
   const onView = (record: IProduct): void => {
     setCurrentRecord(record);
@@ -158,7 +178,7 @@ export default function Product() {
   };
 
   /**
-   * 编辑产品
+   * 编辑商品
    */
   const onEdit = (record: IProduct): void => {
     setCurrentRecord(record);
@@ -175,7 +195,7 @@ export default function Product() {
   };
 
   /**
-   * 新增产品
+   * 新增商品
    */
   const onAdd = (): void => {
     setCurrentRecord(null);
@@ -190,38 +210,42 @@ export default function Product() {
   };
 
   /**
-   * 确认删除产品
+   * 确认删除商品
    */
   const confirmDelete = (record: IProduct): void => {
     Modal.confirm({
       title: '确认删除',
-      content: `确定要删除产品 ${record.productNo} 吗？此操作不可恢复。`,
+      content: `确定要删除商品 ${record.code} 吗？此操作不可恢复。`,
       okText: '确认',
       cancelText: '取消',
       okType: 'danger',
       onOk: async () => {
         try {
-          await productService.deleteProduct(record.id);
-          await loadData();
-          message.success(`删除产品：${record.productNo} 成功`);
+          const { code, msg } = await productService.deleteProduct(record.id);
+          if (code === 200) {
+            loadData();
+            loadStatistics();
+            message.success(`删除商品：${record.code} 成功`);
+          } else {
+            throw new Error(msg);
+          }
         } catch (error) {
-          console.error('删除失败:', error);
-          message.error('删除失败，请重试');
+          console.error('删除商品失败:', error);
+          message.error(`删除商品失败: ${(error as Error).message}`);
+          return;
         }
       },
     });
   };
 
   /**
-   * 保存编辑产品
+   * 保存编辑商品
    */
   const onEditSave = async (): Promise<void> => {
     try {
       const values: IProductEditForm = await form.validateFields();
-      if (currentRecord) {
-        // 更新
-        const updatedRecord: IProduct = {
-          ...currentRecord,
+      if (values) {
+        const params: ProductUpdateDTO = {
           name: values.name,
           price: values.price,
           stock: values.stock,
@@ -230,32 +254,22 @@ export default function Product() {
           supplier: values.supplier,
           description: values.description,
         };
-        await productService.updateProduct(updatedRecord);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`产品 ${currentRecord.productNo} 更新成功`);
-      } else {
-        // 新增
-        const newProduct: IProduct = {
-          id: Date.now(),
-          productNo: `P${Date.now().toString().slice(-8)}`,
-          name: values.name,
-          price: values.price,
-          stock: values.stock,
-          sales: 0,
-          category: values.category,
-          status: values.status,
-          supplier: values.supplier,
-          createTime: new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\//g, '-'),
-          description: values.description,
-        };
-        await productService.insertProduct(newProduct);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`产品 ${newProduct.name} 创建成功`);
+        if (currentRecord) {
+          params.id = currentRecord.id;
+        }
+        const { code, msg } = await productService.updateProduct(params);
+        if (code === 200) {
+          loadData();
+          loadStatistics();
+          setEditModalVisible(false);
+          message.success(`商品 ${params.id} ${params.id === -1 ? '创建' : '更新'}成功`);
+        } else {
+          throw new Error(msg);
+        }
       }
     } catch (error) {
-      console.error('表单验证失败:', error);
+      console.error('保存商品失败:', error);
+      message.error(`保存商品失败: ${(error as Error).message}`);
     }
   };
 
@@ -303,14 +317,14 @@ export default function Product() {
    */
   const columns: TableProps<IProduct>['columns'] = [
     {
-      title: '产品编号',
-      dataIndex: 'productNo',
-      key: 'productNo',
+      title: '商品编号',
+      dataIndex: 'code',
+      key: 'code',
       width: 120,
       fixed: 'left',
     },
     {
-      title: '产品名称',
+      title: '商品名称',
       dataIndex: 'name',
       key: 'name',
       ellipsis: true,
@@ -415,13 +429,13 @@ export default function Product() {
 
   return (
     <Card
-      title="产品管理"
+      title="商品管理"
       variant="outlined"
     >
       {/* 统计卡片 */}
       <div className="mb-4 grid grid-cols-5 gap-4 text-center">
         <Card size="small">
-          <div className="text-sm text-[#666]">总产品</div>
+          <div className="text-sm text-[#666]">总商品</div>
           <div className="text-2xl">
             <span
               className="text-primary cursor-pointer hover:opacity-75"
@@ -480,7 +494,7 @@ export default function Product() {
       {/* 筛选项 */}
       <div className="mb-4 flex gap-4 flex-wrap">
         <Input
-          placeholder="搜索产品编号或名称"
+          placeholder="搜索商品编号或名称"
           prefix={<SearchOutlined />}
           value={searchText}
           onChange={(e: InputElementChangeEvent) => {
@@ -529,7 +543,7 @@ export default function Product() {
           重置
         </Button>
         <Button className="ml-auto" type="primary" icon={<PlusOutlined />} onClick={onAdd}>
-          新增产品
+          新增商品
         </Button>
       </div>
 
@@ -537,7 +551,7 @@ export default function Product() {
       <SharedTable<IProduct>
         columns={columns}
         dataSource={dataSource}
-        rowKey="productNo"
+        rowKey="code"
         loading={loading}
         scroll={{ x: 1400 }}
       />
@@ -552,9 +566,9 @@ export default function Product() {
         showQuickJumper
       />
 
-      {/* 查看产品对话框 */}
+      {/* 查看商品对话框 */}
       <Modal
-        title={`产品详情 - ${currentRecord?.productNo || ''}`}
+        title={`商品详情 - ${currentRecord?.code || ''}`}
         open={viewModalVisible}
         onCancel={() => setViewModalVisible(false)}
         footer={[
@@ -566,15 +580,15 @@ export default function Product() {
       >
         {currentRecord && (
           <Descriptions bordered column={2}>
-            <Descriptions.Item label="产品编号" span={2}>{currentRecord.productNo}</Descriptions.Item>
-            <Descriptions.Item label="产品名称" span={2}>{currentRecord.name}</Descriptions.Item>
-            <Descriptions.Item label="产品分类">{CATEGORY_MAP[currentRecord.category]}</Descriptions.Item>
-            <Descriptions.Item label="产品状态">
+            <Descriptions.Item label="商品编号" span={2}>{currentRecord.code}</Descriptions.Item>
+            <Descriptions.Item label="商品名称" span={2}>{currentRecord.name}</Descriptions.Item>
+            <Descriptions.Item label="商品分类">{CATEGORY_MAP[currentRecord.category]}</Descriptions.Item>
+            <Descriptions.Item label="商品状态">
               <Tag color={STATUS_MAP[currentRecord.status].color}>
                 {STATUS_MAP[currentRecord.status].text}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="产品价格">
+            <Descriptions.Item label="商品价格">
               ¥
               {' '}
               {currentRecord.price.toLocaleString()}
@@ -585,14 +599,14 @@ export default function Product() {
             <Descriptions.Item label="销量">{currentRecord.sales}</Descriptions.Item>
             <Descriptions.Item label="供应商">{currentRecord.supplier}</Descriptions.Item>
             <Descriptions.Item label="创建时间" span={2}>{currentRecord.createTime}</Descriptions.Item>
-            <Descriptions.Item label="产品描述" span={2}>{currentRecord.description}</Descriptions.Item>
+            <Descriptions.Item label="商品描述" span={2}>{currentRecord.description}</Descriptions.Item>
           </Descriptions>
         )}
       </Modal>
 
-      {/* 新增/编辑产品对话框 */}
+      {/* 新增/编辑商品对话框 */}
       <Modal
-        title={currentRecord ? `编辑产品 - ${currentRecord.productNo}` : '新增产品'}
+        title={currentRecord ? `编辑商品 - ${currentRecord.code}` : '新增商品'}
         open={editModalVisible}
         onCancel={() => setEditModalVisible(false)}
         onOk={onEditSave}
@@ -615,16 +629,16 @@ export default function Product() {
         >
           <Form.Item
             name="name"
-            label="产品名称"
-            rules={[{ required: true, message: '请输入产品名称' }]}
+            label="商品名称"
+            rules={[{ required: true, message: '请输入商品名称' }]}
           >
-            <Input placeholder="请输入产品名称" />
+            <Input placeholder="请输入商品名称" />
           </Form.Item>
           <Form.Item
             name="price"
-            label="产品价格"
+            label="商品价格"
             rules={[
-              { required: true, message: '请输入产品价格' },
+              { required: true, message: '请输入商品价格' },
               { type: 'number', min: 0.01, message: '价格必须大于0' },
             ]}
           >
@@ -647,8 +661,8 @@ export default function Product() {
           </Form.Item>
           <Form.Item
             name="category"
-            label="产品分类"
-            rules={[{ required: true, message: '请选择产品分类' }]}
+            label="商品分类"
+            rules={[{ required: true, message: '请选择商品分类' }]}
           >
             <Select placeholder="请选择分类">
               {
@@ -662,8 +676,8 @@ export default function Product() {
           </Form.Item>
           <Form.Item
             name="status"
-            label="产品状态"
-            rules={[{ required: true, message: '请选择产品状态' }]}
+            label="商品状态"
+            rules={[{ required: true, message: '请选择商品状态' }]}
           >
             <Select placeholder="请选择状态">
               {
@@ -684,9 +698,9 @@ export default function Product() {
           </Form.Item>
           <Form.Item
             name="description"
-            label="产品描述"
+            label="商品描述"
           >
-            <Input.TextArea rows={2} placeholder="请输入产品描述" />
+            <Input.TextArea rows={2} placeholder="请输入商品描述" />
           </Form.Item>
         </Form>
       </Modal>

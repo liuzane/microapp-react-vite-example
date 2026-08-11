@@ -20,14 +20,16 @@ import { setAppLoading } from '@/store/slices/appsLoadingSlice';
 // 应用入口
 import App from './App.tsx';
 
-// 数据库名称
-const { DATABASE_NAME } = await import('shared/consts/db');
-
-// 数据库模块
-const { initIndexedDB } = await import('mockDB/init');
-
-// 引入共享的 Ant Design 主题配置
-const { default: antdTheme } = await import('shared/utils/antdTheme');
+// 远程模块
+const [
+  { initIndexedDB }, // 初始化 IndexedDB 数据库工具
+  { DATABASE_NAME }, // 数据库名称
+  { default: antdTheme }, // 共享的 Ant Design 主题配置
+] = await Promise.all([
+  import('mockDB/init'),
+  import('shared/consts'),
+  import('shared/utils/antdTheme'),
+]);
 
 async function init() {
   // 初始化 IndexedDB 数据库

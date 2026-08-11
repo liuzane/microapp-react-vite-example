@@ -1,13 +1,13 @@
-# 子应用1 - 订单与产品管理
+# 子应用1 - 订单与商品管理
 
-基于 Vite + React 构建的 MicroApp 微前端子应用，提供订单和产品管理页面。表格和分页组件统一复用 `shared` 远程模块，数据存储依赖 `mockDB` 提供的 IndexedDB 本地数据库。
+基于 Vite + React 构建的 MicroApp 微前端子应用，提供订单和商品管理页面。表格和分页组件统一复用 `shared` 远程模块，数据存储依赖 `mockDB` 提供的 IndexedDB 本地数据库。
 
 ## 项目简介
 
 该应用是 [Vite Microapp React Example](https://github.com/liuzane/microapp-react-vite-example.git) 的微前端子应用之一，独立开发、部署，并通过 MicroApp 框架被主应用加载。主要业务功能：
 
 - 订单列表：展示订单数据，支持分页浏览
-- 产品列表：展示产品数据，支持分页浏览
+- 商品列表：展示商品数据，支持分页浏览
 
 所有表格展示及分页操作均使用 `shared` 远程模块中的通用组件，数据来源于 `mockDB` 模块封装的 IndexedDB 服务，实现前端本地数据持久化。
 
@@ -17,7 +17,7 @@
 | ------------------- | -------------------------------------------------------------------- |
 | Vite                | 构建工具，提供极速的开发服务器与打包能力                               |
 | React 19            | UI 框架                                                             |
-| React Router DOM v6 | 内部路由（订单 / 产品页面切换）                                       |
+| React Router DOM v6 | 内部路由（订单 / 商品页面切换）                                       |
 | Ant Design 6        | 组件库，提供一致的 UI 组件集                                         |
 | MicroApp           | 微前端框架，该应用作为子应用接入                                       |
 | Module Federation   | 用于加载 `shared` 远程模块（表格、分页组件、IndexedDB 工具）           |

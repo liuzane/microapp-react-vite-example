@@ -1,5 +1,5 @@
 // 基础模块
-import { useState, useEffect, useCallback } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import {
   Input,
   Select,
@@ -21,16 +21,17 @@ import {
   EyeOutlined,
 } from '@ant-design/icons';
 
-// 远程组件
-import { SharedTable, SharedPagination } from 'shared/components';
-
 // 枚举
 import { RoleStatusEnum } from '@/enums/role.enum';
 
 // 类型
 import type { TableProps } from 'antd';
+import type { Role } from 'mockDB/data/roles';
+import type { User } from 'mockDB/data/users';
+import type { RoleSearchParams, RoleUpdateDTO } from 'mockDB/services/role-service';
+import type { SharedTable } from 'shared/components/SharedTable';
+import type { SharedPagination } from 'shared/components/SharedPagination';
 import type {
-  IRoleSearchParams,
   IRole,
   IStatusConfig,
   RoleStatusType,
@@ -38,7 +39,12 @@ import type {
 } from '@/models/role';
 
 // 数据服务
-import RoleService from '@/services/RoleService';
+import roleService from '@/services/roleService';
+import userService from '@/services/userService';
+
+// 模块联邦组件
+const SharedTable: SharedTable = lazy(() => import('shared/components/SharedTable')) as SharedTable;
+const SharedPagination: SharedPagination = lazy(() => import('shared/components/SharedPagination')) as SharedPagination;
 
 const { Option } = Select;
 
@@ -46,9 +52,6 @@ const STATUS_MAP: Record<RoleStatusType, IStatusConfig> = {
   [RoleStatusEnum.Active]: { text: '启用', color: 'success' },
   [RoleStatusEnum.Inactive]: { text: '停用', color: 'default' },
 };
-
-// 角色服务
-const roleService: RoleService = new RoleService();
 
 export default function Role() {
   // 状态管理
@@ -74,24 +77,50 @@ export default function Role() {
    * 加载数据函数
    * @param params 查询参数
    */
-  const loadData: (params?: IRoleSearchParams) => Promise<void> = useCallback(async (params?: IRoleSearchParams) => {
+  const loadData = async (params?: RoleSearchParams) => {
     setLoading(true);
     try {
-      const { data, total: totalCount } = await roleService.getRolesByPage({
-        currentPage: params && 'currentPage' in params ? params.currentPage : currentPage,
-        pageSize: params && 'pageSize' in params ? params.pageSize : pageSize,
-        searchText: params && 'searchText' in params ? params.searchText : searchText,
-        status: params && 'status' in params ? params.status : roleStatus,
-      });
-      setDataSource(data);
-      setTotal(totalCount);
+      const [rolesResult, usersResult] = await Promise.allSettled([
+        roleService.getRolesByPage({
+          currentPage: params && 'currentPage' in params ? params.currentPage : currentPage,
+          pageSize: params && 'pageSize' in params ? params.pageSize : pageSize,
+          searchText: params && 'searchText' in params ? params.searchText : searchText,
+          status: params && 'status' in params ? params.status : roleStatus,
+        }),
+        userService.getAllUsers(),
+      ]);
+      let dataSource: Role[] = [];
+      let users: User[] = [];
+      if (rolesResult.status === 'fulfilled' && rolesResult.value) {
+        const { code, data, msg } = rolesResult.value;
+        if (code === 200 && data) {
+          dataSource = data.list;
+          setTotal(data.total);
+        } else {
+          throw new Error(msg);
+        }
+      }
+      if (usersResult.status === 'fulfilled' && usersResult.value) {
+        const { code, data, msg } = usersResult.value;
+        if (code === 200 && data) {
+          users = data;
+        } else {
+          console.error('加载用户数据选项失败:', msg);
+        }
+      }
+      if (dataSource.length > 0) {
+        setDataSource(dataSource.map((role: Role) => ({
+          ...role,
+          userCount: users.length > 0 ? users.filter(user => user.roleName === role.name).length : -1,
+        })) as IRole[]);
+      }
     } catch (error) {
-      console.error('加载数据失败:', error);
-      message.error('加载角色数据失败，请刷新页面重试');
+      console.error('加载角色数据失败:', error);
+      message.error(`加载角色数据失败: ${(error as Error).message}`);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, searchText, roleStatus]);
+  };
 
   // 初始化及筛选条件变化时加载数据
   useEffect(() => {
@@ -152,12 +181,17 @@ export default function Role() {
       okType: 'danger',
       onOk: async () => {
         try {
-          await roleService.deleteRole(record.id);
-          await loadData();
-          message.success(`删除角色：${record.name} 成功`);
+          const { code, msg } = await roleService.deleteRole(record.id);
+          if (code === 200) {
+            await loadData();
+            message.success(`删除角色：${record.name} 成功`);
+          } else {
+            throw new Error(msg);
+          }
         } catch (error) {
-          console.error('删除失败:', error);
-          message.error('删除失败，请重试');
+          console.error('删除角色失败:', error);
+          message.error(`删除角色失败: ${(error as Error).message}`);
+          return;
         }
       },
     });
@@ -169,37 +203,28 @@ export default function Role() {
   const onEditSave = async (): Promise<void> => {
     try {
       const values: IRoleEditForm = await form.validateFields();
-      if (currentRecord) {
-        // 更新
-        const updatedRecord: IRole = {
-          ...currentRecord,
+      if (values) {
+        const params: RoleUpdateDTO = {
           name: values.name,
           code: values.code,
           status: values.status,
           description: values.description,
         };
-        await roleService.updateRole(updatedRecord);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`角色 ${currentRecord.name} 更新成功`);
-      } else {
-        // 新增
-        const newRole: IRole = {
-          id: Date.now(),
-          name: values.name,
-          code: values.code,
-          status: values.status,
-          userCount: 0,
-          createTime: new Date().toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).replace(/\//g, '-'),
-          description: values.description,
-        };
-        await roleService.insertRole(newRole);
-        await loadData();
-        setEditModalVisible(false);
-        message.success(`角色 ${newRole.name} 创建成功`);
+        if (currentRecord) {
+          params.id = currentRecord.id;
+        }
+        const { code, msg } = await roleService.updateRole(params);
+        if (code === 200) {
+          await loadData();
+          setEditModalVisible(false);
+          message.success(`角色 ${params.name} ${params.id === -1 ? '创建' : '更新'}成功`);
+        } else {
+          throw new Error(msg);
+        }
       }
     } catch (error) {
-      console.error('表单验证失败:', error);
+      console.error('保存角色失败:', error);
+      message.error(`保存角色失败: ${(error as Error).message}`);
     }
   };
 
@@ -213,11 +238,15 @@ export default function Role() {
         ...record,
         status: newStatus,
       };
-      await roleService.updateRole(updatedRecord);
-      await loadData();
+      const { code, msg } = await roleService.updateRole(updatedRecord);
+      if (code === 200) {
+        await loadData();
+      } else {
+        throw new Error(msg);
+      }
     } catch (error) {
       console.error('状态切换失败:', error);
-      message.error('状态切换失败，请重试');
+      message.error(`状态切换失败: ${(error as Error).message}`);
     }
   };
 
@@ -253,23 +282,24 @@ export default function Role() {
    */
   const columns: TableProps<IRole>['columns'] = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
+      title: '序号',
+      key: 'index',
+      width: 50,
+      align: 'center',
       fixed: 'left',
+      render: (_text, _record, index) => index + 1,
     },
     {
       title: '角色名称',
       dataIndex: 'name',
       key: 'name',
-      width: 150,
+      width: 200,
     },
     {
       title: '角色编码',
       dataIndex: 'code',
       key: 'code',
-      width: 150,
+      width: 200,
     },
     {
       title: '状态',
@@ -292,7 +322,7 @@ export default function Role() {
       dataIndex: 'userCount',
       key: 'userCount',
       width: 100,
-      render: (count: number) => `${count} 人`,
+      render: (count: number) => count !== -1 ? `${count} 人` : '-',
     },
     {
       title: '创建时间',
@@ -302,9 +332,17 @@ export default function Role() {
       sorter: (a: IRole, b: IRole) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
     },
     {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
+      width: 180,
+      sorter: (a: IRole, b: IRole) => new Date(a.updateTime).getTime() - new Date(b.updateTime).getTime(),
+    },
+    {
       title: '描述',
       dataIndex: 'description',
       key: 'description',
+      minWidth: 200,
       ellipsis: true,
     },
     {

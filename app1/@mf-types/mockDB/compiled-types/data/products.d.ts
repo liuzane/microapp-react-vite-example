@@ -1,6 +1,6 @@
 export interface Product {
     id: number;
-    productNo: string;
+    code: string;
     name: string;
     price: number;
     stock: number;
@@ -8,8 +8,9 @@ export interface Product {
     category: string;
     status: string;
     supplier: string;
-    createTime: string;
     description: string;
+    createTime: string;
+    updateTime: string;
 }
 declare const products: Product[];
 export default products;

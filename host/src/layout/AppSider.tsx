@@ -1,19 +1,20 @@
 // 基础模块
-import { useState, useEffect } from 'react';
+import { lazy, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import microApp from '@micro-zoe/micro-app';
 import { Layout } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
 
-// 远程组件
-import { SharedMenu } from 'shared/components';
-
 // 类型
 import type { NavigateFunction, Location } from 'react-router-dom';
 import type { MenuProps } from 'antd';
+import type { SharedMenu } from 'shared/components/SharedMenu';
 
 // 枚举
 import { AppNameEnum } from '@/enums';
+
+// 模块联邦组件
+const SharedMenu: SharedMenu = lazy(() => import('shared/components/SharedMenu')) as SharedMenu;
 
 type MenuItem = Required<MenuProps>['items'][number];
 
@@ -27,7 +28,7 @@ const menuItems: MenuItem[] = [
     icon: <AppstoreOutlined />,
     children: [
       { key: `/${AppNameEnum.App1}/order`, label: '订单管理' },
-      { key: `/${AppNameEnum.App1}/product`, label: '产品管理' },
+      { key: `/${AppNameEnum.App1}/product`, label: '商品管理' },
     ],
   },
   {

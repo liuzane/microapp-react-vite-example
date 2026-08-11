@@ -1,3 +1,6 @@
+import type { JSX } from 'react';
 import type { PaginationProps } from 'antd';
 import './SharedPagination.css';
-export default function SharedPagination(props: PaginationProps): import("react").JSX.Element;
+export type SharedPagination = (props: PaginationProps) => JSX.Element;
+declare const SharedPagination: SharedPagination;
+export default SharedPagination;

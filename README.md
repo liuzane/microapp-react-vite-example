@@ -1,6 +1,6 @@
 # Vite Microapp React Example
 
-一个基于 MicroApp + React + Vite + Module Federation 构建的微前端演示项目。包含一个主应用（Host）、一个共享模块（Shared）和两个业务子应用（订单/产品管理、用户/角色管理）。所有子应用的表格、分页、菜单组件及本地数据服务均来自 Shared 模块。
+一个基于 MicroApp + React + Vite + Module Federation 构建的微前端演示项目。包含一个主应用（Host）、一个共享模块（Shared）和两个业务子应用（订单/商品管理、用户/角色管理）。所有子应用的表格、分页、菜单组件及本地数据服务均来自 Shared 模块。
 
 
 ## 项目结构
@@ -9,7 +9,7 @@
 microapp-react-vite-example/
 ├── host/                 # 主应用（基座） - 全局布局、菜单、子应用加载
 ├── shared/               # 共享模块 - 通用组件、IndexedDB 服务、模拟数据
-├── app1/                 # 子应用1 - 订单管理、产品管理
+├── app1/                 # 子应用1 - 订单管理、商品管理
 └── app2/                 # 子应用2 - 用户管理、角色管理
 ```
 
@@ -20,7 +20,7 @@ microapp-react-vite-example/
 | -------- | ------------------------------------------------------------------------- | ------------------ |
 | **host** | 主应用，提供整体布局、侧边栏菜单（来自 shared），动态加载子应用。                   | `http://localhost:3000` |
 | **shared** | 共享模块，暴露 Menu、DataTable、Pagination 组件。                           | `http://localhost:3999` |
-| **app1** | 子应用1，展示订单列表和产品列表，使用 shared 的表格、分页及 mockDB 的数据库服务。    | `http://localhost:3001` |
+| **app1** | 子应用1，展示订单列表和商品列表，使用 shared 的表格、分页及 mockDB 的数据库服务。    | `http://localhost:3001` |
 | **app2** | 子应用2，展示用户列表和角色列表，同样依赖 shared 的组件与 mockDB 的数据库服务。      | `http://localhost:3002` |
 
 
@@ -90,7 +90,7 @@ npm run dev
 ### 独立访问各模块
 
 - Shared 用法示例：`http://localhost:3999` （展示 Menu、DataTable、Pagination 及 IndexedDB 操作示例）
-- app1（订单/产品）：`http://localhost:3001` （可在该地址独立开发调试，但需要 shared 模块支持）
+- app1（订单/商品）：`http://localhost:3001` （可在该地址独立开发调试，但需要 shared 模块支持）
 - app2（用户/角色）：`http://localhost:3002`
 - host 主应用：`http://localhost:3000`
 
