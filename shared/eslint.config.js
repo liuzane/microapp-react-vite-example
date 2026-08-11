@@ -43,7 +43,9 @@ export default defineConfig([
           ignoreRestSiblings: true,
         },
       ],
-      {
+      '@typescript-eslint/typedef': [
+        'error',
+        {
           arrayDestructuring: false, // 数组解构强制类型注解
           arrowParameter: false, // 箭头函数参数不强制类型注解
           memberVariableDeclaration: true, // 类属性强制类型注解
@@ -53,6 +55,7 @@ export default defineConfig([
           variableDeclaration: true, // 变量声明强制类型注解
           variableDeclarationIgnoreFunction: true, // 函数声明变量不强制类型注解
         },
+      ],
 
       /* Stylistic */
       '@stylistic/semi': ['error', 'always'],
