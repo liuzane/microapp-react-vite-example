@@ -54,8 +54,8 @@ const STATUS_MAP: Record<OrderStatusType, IStatusConfig> = {
   [OrderStatusEnum.Pending]: { text: '待支付', color: 'warning' },
   [OrderStatusEnum.Paid]: { text: '已支付', color: 'processing' },
   [OrderStatusEnum.Shipped]: { text: '已发货', color: 'success' },
-  [OrderStatusEnum.Completed]: { text: '已完成', color: 'default' },
   [OrderStatusEnum.Cancelled]: { text: '已取消', color: 'error' },
+  [OrderStatusEnum.Completed]: { text: '已完成', color: 'default' },
 };
 
 export default function Order() {
@@ -463,7 +463,7 @@ export default function Order() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">待支付</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[OrderStatusEnum.Pending].text}</div>
           <div className="text-2xl">
             <span
               className="text-warning cursor-pointer hover:opacity-75"
@@ -474,7 +474,7 @@ export default function Order() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">已支付</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[OrderStatusEnum.Paid].text}</div>
           <div className="text-2xl">
             <span
               className="text-primary cursor-pointer hover:opacity-75"
@@ -485,7 +485,7 @@ export default function Order() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">已发货</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[OrderStatusEnum.Shipped].text}</div>
           <div className="text-2xl">
             <span
               className="text-success cursor-pointer hover:opacity-75"
@@ -496,7 +496,7 @@ export default function Order() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">已取消</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[OrderStatusEnum.Cancelled].text}</div>
           <div className="text-2xl">
             <span
               className="text-danger cursor-pointer hover:opacity-75"
@@ -507,7 +507,7 @@ export default function Order() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">已完成</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[OrderStatusEnum.Completed].text}</div>
           <div className="text-2xl">
             <span
               className="text-gray-500 cursor-pointer hover:opacity-75"
