@@ -133,8 +133,8 @@ export default function Order() {
           pending: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Pending).length,
           paid: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Paid).length,
           shipped: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Shipped).length,
-          completed: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Completed).length,
           cancelled: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Cancelled).length,
+          completed: allOrders.filter((item: IOrder) => item.status === OrderStatusEnum.Completed).length,
         });
       } else {
         throw new Error(msg);
@@ -451,7 +451,7 @@ export default function Order() {
     >
       {/* 统计卡片 */}
       <div className="mb-4 grid grid-cols-5 gap-4 text-center">
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">总订单</div>
           <div className="text-2xl">
             <span
@@ -462,7 +462,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">待支付</div>
           <div className="text-2xl">
             <span
@@ -473,7 +473,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">已支付</div>
           <div className="text-2xl">
             <span
@@ -484,7 +484,7 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">已发货</div>
           <div className="text-2xl">
             <span
@@ -495,7 +495,18 @@ export default function Order() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
+          <div className="text-sm text-[#666]">已取消</div>
+          <div className="text-2xl">
+            <span
+              className="text-danger cursor-pointer hover:opacity-75"
+              onClick={() => onStatusChange(OrderStatusEnum.Cancelled)}
+            >
+              {statistics.cancelled}
+            </span>
+          </div>
+        </Card>
+        <Card>
           <div className="text-sm text-[#666]">已完成</div>
           <div className="text-2xl">
             <span

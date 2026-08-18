@@ -439,7 +439,7 @@ export default function Product() {
     >
       {/* 统计卡片 */}
       <div className="mb-4 grid grid-cols-5 gap-4 text-center">
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">总商品</div>
           <div className="text-2xl">
             <span
@@ -450,7 +450,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">上架</div>
           <div className="text-2xl">
             <span
@@ -461,7 +461,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">缺货</div>
           <div className="text-2xl">
             <span
@@ -472,7 +472,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">库存紧张</div>
           <div className="text-2xl">
             <span
@@ -483,7 +483,7 @@ export default function Product() {
             </span>
           </div>
         </Card>
-        <Card size="small">
+        <Card>
           <div className="text-sm text-[#666]">下架</div>
           <div className="text-2xl">
             <span
