@@ -179,14 +179,6 @@ export default function Order() {
     loadOptions();
   }, []);
 
-  // 当删除操作后，若当前页无数据且不是第一页，则跳转到上一页
-  useEffect(() => {
-    const totalPages: number = Math.ceil(total / pageSize);
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [total, pageSize, currentPage]);
-
   /**
    * 全局导航函数
    * @param path 导航路径
@@ -252,7 +244,13 @@ export default function Order() {
         try {
           const { code, msg } = await orderService.deleteOrder(record.id);
           if (code === 200) {
-            loadData();
+            const totalPages: number = Math.ceil((total - 1) / pageSize);
+            if (currentPage > totalPages && totalPages > 0) {
+              setCurrentPage(totalPages);
+              loadData({ currentPage: totalPages });
+            } else {
+              loadData();
+            }
             loadStatistics();
             message.success(`删除订单：${record.productName}(${record.orderNo}) 成功`);
           } else {
@@ -581,8 +579,8 @@ export default function Order() {
       >
         {currentRecord && (
           <Descriptions bordered column={2}>
-            <Descriptions.Item label="订单号" span={2}>{currentRecord.orderNo}</Descriptions.Item>
-            <Descriptions.Item label="商品名称" span={2}>{currentRecord.productName}</Descriptions.Item>
+            <Descriptions.Item label="订单号">{currentRecord.orderNo}</Descriptions.Item>
+            <Descriptions.Item label="商品名称">{currentRecord.productName}</Descriptions.Item>
             <Descriptions.Item label="客户姓名">{currentRecord.customerName}</Descriptions.Item>
             <Descriptions.Item label="联系电话">{currentRecord.phone}</Descriptions.Item>
             <Descriptions.Item label="订单金额">

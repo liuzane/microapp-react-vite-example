@@ -130,14 +130,6 @@ export default function User() {
     loadOptions();
   }, []);
 
-  // 当删除操作后，若当前页无数据且不是第一页，则跳转到上一页
-  useEffect(() => {
-    const totalPages: number = Math.ceil(total / pageSize);
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [total, pageSize, currentPage]);
-
   /**
    * 查看用户详情
    */
@@ -187,7 +179,13 @@ export default function User() {
         try {
           const { code, msg } = await userService.deleteUser(record.id);
           if (code === 200) {
-            await loadData();
+            const totalPages: number = Math.ceil((total - 1) / pageSize);
+            if (currentPage > totalPages && totalPages > 0) {
+              setCurrentPage(totalPages);
+              loadData({ currentPage: totalPages });
+            } else {
+              loadData();
+            }
             message.success(`删除用户：${record.name} 成功`);
           } else {
             throw new Error(msg);
@@ -333,7 +331,7 @@ export default function User() {
       title: '邮箱',
       dataIndex: 'email',
       key: 'email',
-      minWidth: 200,
+      minWidth: 300,
       ellipsis: true,
     },
     {
@@ -352,6 +350,13 @@ export default function User() {
       key: 'createTime',
       width: 180,
       sorter: (a: IUser, b: IUser) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
+      width: 180,
+      sorter: (a: IUser, b: IUser) => new Date(a.updateTime).getTime() - new Date(b.updateTime).getTime(),
     },
     {
       title: '操作',
@@ -471,7 +476,7 @@ export default function User() {
           <Descriptions bordered column={2}>
             <Descriptions.Item label="用户ID">{currentRecord.id}</Descriptions.Item>
             <Descriptions.Item label="用户角色">{currentRecord.roleName}</Descriptions.Item>
-            <Descriptions.Item label="用户姓名" span={2}>{currentRecord.name}</Descriptions.Item>
+            <Descriptions.Item label="用户姓名">{currentRecord.name}</Descriptions.Item>
             <Descriptions.Item label="电子邮箱">{currentRecord.email}</Descriptions.Item>
             <Descriptions.Item label="手机号码">{currentRecord.phone}</Descriptions.Item>
             <Descriptions.Item label="用户状态">
@@ -480,6 +485,7 @@ export default function User() {
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="创建时间" span={2}>{currentRecord.createTime}</Descriptions.Item>
+            <Descriptions.Item label="更新时间" span={2}>{currentRecord.updateTime}</Descriptions.Item>
             <Descriptions.Item label="最后登录" span={2}>{currentRecord.lastLoginTime || '-'}</Descriptions.Item>
           </Descriptions>
         )}

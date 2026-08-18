@@ -127,14 +127,6 @@ export default function Role() {
     loadData();
   }, []);
 
-  // 当删除操作后，若当前页无数据且不是第一页，则跳转到上一页
-  useEffect(() => {
-    const totalPages: number = Math.ceil(total / pageSize);
-    if (currentPage > totalPages && totalPages > 0) {
-      setCurrentPage(totalPages);
-    }
-  }, [total, pageSize, currentPage]);
-
   /**
    * 查看角色详情
    */
@@ -183,7 +175,13 @@ export default function Role() {
         try {
           const { code, msg } = await roleService.deleteRole(record.id);
           if (code === 200) {
-            await loadData();
+            const totalPages: number = Math.ceil((total - 1) / pageSize);
+            if (currentPage > totalPages && totalPages > 0) {
+              setCurrentPage(totalPages);
+              loadData({ currentPage: totalPages });
+            } else {
+              loadData();
+            }
             message.success(`删除角色：${record.name} 成功`);
           } else {
             throw new Error(msg);
@@ -461,9 +459,8 @@ export default function Role() {
       >
         {currentRecord && (
           <Descriptions bordered column={2}>
-            <Descriptions.Item label="角色ID">{currentRecord.id}</Descriptions.Item>
             <Descriptions.Item label="角色编码">{currentRecord.code}</Descriptions.Item>
-            <Descriptions.Item label="角色名称" span={2}>{currentRecord.name}</Descriptions.Item>
+            <Descriptions.Item label="角色名称">{currentRecord.name}</Descriptions.Item>
             <Descriptions.Item label="角色状态">
               <Tag color={STATUS_MAP[currentRecord.status].color}>
                 {STATUS_MAP[currentRecord.status].text}
@@ -475,6 +472,7 @@ export default function Role() {
               人
             </Descriptions.Item>
             <Descriptions.Item label="创建时间" span={2}>{currentRecord.createTime}</Descriptions.Item>
+            <Descriptions.Item label="更新时间" span={2}>{currentRecord.updateTime}</Descriptions.Item>
             <Descriptions.Item label="角色描述" span={2}>{currentRecord.description}</Descriptions.Item>
           </Descriptions>
         )}
