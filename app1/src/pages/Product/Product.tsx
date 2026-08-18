@@ -451,7 +451,7 @@ export default function Product() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">上架</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[ProductStatusEnum.OnSale].text}</div>
           <div className="text-2xl">
             <span
               className="text-success cursor-pointer hover:opacity-75"
@@ -462,7 +462,7 @@ export default function Product() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">缺货</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[ProductStatusEnum.OutOfStock].text}</div>
           <div className="text-2xl">
             <span
               className="text-danger cursor-pointer hover:opacity-75"
@@ -473,7 +473,7 @@ export default function Product() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">库存紧张</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[ProductStatusEnum.LowStock].text}</div>
           <div className="text-2xl">
             <span
               className="text-warning cursor-pointer hover:opacity-75"
@@ -484,7 +484,7 @@ export default function Product() {
           </div>
         </Card>
         <Card>
-          <div className="text-sm text-[#666]">下架</div>
+          <div className="text-sm text-[#666]">{STATUS_MAP[ProductStatusEnum.OffSale].text}</div>
           <div className="text-2xl">
             <span
               className="text-gray-500 cursor-pointer hover:opacity-75"

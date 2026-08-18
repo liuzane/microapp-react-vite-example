@@ -450,7 +450,7 @@ export default function Order() {
       variant="outlined"
     >
       {/* 统计卡片 */}
-      <div className="mb-4 grid grid-cols-5 gap-4 text-center">
+      <div className="mb-4 grid grid-cols-6 gap-4 text-center">
         <Card>
           <div className="text-sm text-[#666]">总订单</div>
           <div className="text-2xl">
